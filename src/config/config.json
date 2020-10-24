@@ -1,0 +1,14 @@
+{
+  "development": {
+    "storage": "./HeadsNew.sqlite3",
+    "dialect": "sqlite"
+  },
+  "test": {
+    "storage": "./HeadsNew.sqlite3",
+    "dialect": "sqlite"
+  },
+  "production": {
+     "storage": "./HeadsNew.sqlite3",
+     "dialect": "sqlite"
+ }
+}
