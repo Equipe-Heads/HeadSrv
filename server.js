@@ -14,17 +14,21 @@ app.use(bdp.json())
 //Resgata a variarável de ambiente "PORT" ou este valor
 const port = process.env.PORT || 5000
 
+//Importa o arquivo "cors"
+const cors = require('cors')
+//
+app.use(cors())
+
+//Importa o arquivo "./src/routes/usuarioRoutes.js"
+const routes = require('./src/routes/pessoaRoutes.js')
+//utiliza a função exportada pelo arquivo "./src/routes/usuarioRoutes.js"
+routes(app)
+
 //Rota Principal
 app.route('/')
-  //Definir o método "GET" Padrão
   .get((req, res) => {
     res.send('API HeadsNew "GET" funcionando')
     console.log('API HeadsNew "GET" funcionando')
-  })
-  //Definir o método "POST" Padrão
-  .post((req, res) => {
-    res.send('API HeadsNew "POST" funcionando')
-    console.log('API HeadsNew "POST" funcionando')
   })
 
 //"Escutar" Porta onde roda a Aplicação

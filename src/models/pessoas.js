@@ -10,11 +10,13 @@ module.exports = (sequelize, DataTypes) => {
   class tab extends Model {
     static associate(models) {
       tab.belongsTo(
-        models.Pessoas, {
-        foreignKey: 'pessoaId',
-        as: 'End', 
-        allowNull: true
-      })
+        models.Tipo, 
+        {
+          foreignKey: 'tipoId', 
+          as: 'Tip', 
+          allowNull: false
+        }
+      )
     }
   }
 
@@ -23,14 +25,13 @@ module.exports = (sequelize, DataTypes) => {
     
     // Define os Atributos do "Model"
     {
-      cep: DataTypes.STRING,
-      numero: DataTypes.STRING,
-      complemento: DataTypes.STRING,
-      pessoaId: DataTypes.INTEGER
+      nome: DataTypes.STRING,
+      codigo: DataTypes.INTEGER,
+      tipoId: DataTypes.INTEGER
     },
 
     // Nome da tabela do "Model"
-    {sequelize, modelName: 'Endereco'}
+    {sequelize, modelName: 'Pessoas'}
 
   )
 
@@ -38,3 +39,4 @@ module.exports = (sequelize, DataTypes) => {
   return tab
 
 }
+

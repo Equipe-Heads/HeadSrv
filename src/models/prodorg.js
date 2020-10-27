@@ -10,7 +10,14 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      ProdOrg.belongsTo(models.Pessoas, {
+        targetKey: 'id',
+        as: 'idPessoa'
+      }),  
+      ProdOrg.belongsTo(models.Produto, {
+        targetKey: 'id',
+        as: 'idProduto'
+      })  
     }
   };
   ProdOrg.init({

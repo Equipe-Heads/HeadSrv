@@ -1,25 +1,39 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+'use strict'
+
+// Usa o "sequelize"
+const {Model} = require('sequelize')
+
+// Exporta o "Módulo"
 module.exports = (sequelize, DataTypes) => {
-  class Ponto extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+
+   // Cria um "Model"
+  class tab extends Model {
     static associate(models) {
-      // define association here
+      tab.belongsTo(
+        models.Pessoas, {
+        foreignKey: 'pessoaId',
+        as: 'Pnt', 
+        allowNull: true
+      })
     }
-  };
-  Ponto.init({
-    qrcode: DataTypes.STRING,
-    situacao: DataTypes.INTEGER,
-    pessoaId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Ponto',
-  });
-  return Ponto;
-};
+  }
+ 
+  // Inicializa o "Model"
+  tab.init(
+    
+    // Define os Atributos do "Model"
+    {
+      qrcode: DataTypes.STRING,
+      situacao: DataTypes.INTEGER,
+      pessoaId: DataTypes.INTEGER
+    },
+
+    // Nome da tabela do "Model"
+    {sequelize, modelName: 'Ponto'}
+
+  )
+
+  // Retorna a Class "Model"
+  return tab
+
+}
