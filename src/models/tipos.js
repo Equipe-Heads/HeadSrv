@@ -7,19 +7,19 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
 
   // Cria um "Model"
-  class tab extends Model {}
+  class Tipos extends Model {}
 
   // Inicializa o "Model"
-  tab.init(
+  Tipos.init(
     
     // Define os Atributos do "Model"
     {tipo: DataTypes.STRING},
 
     // Nome da tabela do "Model" 
-    {sequelize, modelName: 'Tipo'}
+    {sequelize, modelName: 'Tipos'}
 
   )
 
   // Retorna a Class "Model"
-  return tab
+  return Tipos
 }

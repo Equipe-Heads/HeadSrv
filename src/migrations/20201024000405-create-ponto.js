@@ -14,6 +14,9 @@ module.exports = {
       situacao: {
         type: Sequelize.INTEGER
       },
+      reponsavelId: {
+        type: Sequelize.INTEGER
+      },
       pessoaId: {
         type: Sequelize.INTEGER
       },

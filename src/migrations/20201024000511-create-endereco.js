@@ -8,6 +8,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      logradoro: {
+        type: Sequelize.STRING
+      },
+      bairro: {
+        type: Sequelize.STRING
+      },
+      cidade: {
+        type: Sequelize.STRING
+      },
+      uf: {
+        type: Sequelize.STRING
+      },
       cep: {
         type: Sequelize.STRING
       },

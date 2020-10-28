@@ -82,10 +82,80 @@ exports.listPes = (req, res) => {
 
 exports.listPnt = (req, res) => {
 
-  mPnt.findAll(sPnt).then(Ret => {
-    res.send(Ret)
-    console.table(Ret)
-  })
+  if (req.body.valor != null) {
+
+    whr = {pessoaId: req.body.valor} 
+
+    sql = { raw: true, where: whr, attributes: [ 'situacao', 'qrcode', 'pessoaId' ]}
+
+    mPnt.findAll(sql).then(Ret => {
+
+      var {situacao, qrcode, pessoaId} = Ret
+
+      var response = Ret
+
+      sql = { raw: true, where: whr, attributes: aPes}
+
+      whr = {Id: req.body.valor} 
+
+      mEnd.findAll(sql).then(Ret => {
+
+        var {cep, numero, complemento, pessoaId} = Ret
+
+        response = 
+          {
+            response,
+            Ret
+          }
+
+        // whr = {Id: pessoaId} 
+
+        sql = { raw: true, where: whr, attributes: aUsu}
+
+        mPes.findAll(sql).then(Ret => {
+
+          var {id, nome, codigo, tipoId} = Ret
+
+          response = 
+            {
+              response,
+              Ret
+            }
+
+          // whr = {Id: tipoId} 
+
+          // sql = { raw: true, where: whr, attributes: ['tipo']}
+
+          // mTip.findAll(sql).then(Ret => {
+
+          //   var {tipo} = Ret
+
+          //   id = req.body.valor
+
+            // Ret = {situacao, qrcode, pessoaId} // {id, codigo, nome, cep, numero, complemento, tipoId, tipo, situacao, qrcode}
+
+            res.send(response)
+
+            // console.table(response)
+
+          // })
+
+        })
+
+      })
+
+    })
+
+  }
+  else {
+
+    mPnt.findAll(sql).then(Ret => {
+      res.send(Ret)
+      console.table(Ret)
+    })
+
+  }
+
 
 }
 
@@ -97,7 +167,7 @@ exports.criaUsu = (req, res) => {
   var {nome, codigo, tipoId} = req.body
 
   //Padroniza "tipoId"  
-  tipoId = tipoId || 5 // 5 = 'Consumidor'
+  tipoId = tipoId || 5 // 5 = Consumidor
 
   //Padroniza "codigo"
   codigo = codigo || "Não informado"
@@ -125,7 +195,7 @@ exports.criaPes = (req, res) => {
   var {cep, numero, complemento, nome, codigo, tipoId, id} = req.body
 
   //Padroniza "tipoId"  
-  tipoId = tipoId || 5 // 5 = 'Consumidor'
+  tipoId = tipoId || 5 // 5 = Consumidor
 
   //Padroniza "codigo"
   codigo = codigo || "Não informado"
@@ -166,7 +236,7 @@ exports.criaPnt = (req, res) => {
   var {situacao, qrcode, cep, numero, complemento, nome, codigo, tipoId, id} = req.body
 
   //Padroniza "tipoId"  
-  tipoId = tipoId || 5 // 5 = 'Consumidor'
+  tipoId = tipoId || 5 // 5 = Consumidor
 
   //Padroniza "codigo"
   codigo = codigo || "Não informado"

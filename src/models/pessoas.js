@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     // Define os Atributos do "Model"
     {
       nome: DataTypes.STRING,
+      teste: DataTypes.STRING,
       codigo: DataTypes.INTEGER,
       tipoId: DataTypes.INTEGER
     },
