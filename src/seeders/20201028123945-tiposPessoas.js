@@ -2,16 +2,17 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    queryInterface.bulkInsert('Tipos', [
+    return queryInterface.bulkInsert('Tipos', [
       {tipo: 'Usuário'},
       {tipo: 'Fornecedor'},
-      {tipo: 'Ponto Comercia'},
+      {tipo: 'Responsável'},
       {tipo: 'Certificador'},
-      {tipo: 'Consumidor'}
+      {tipo: 'Consumidor'},
+      {tipo: 'Ponto Comercial'}
     ], {})
   },
 
   down: async (queryInterface, Sequelize) => {
-    queryInterface.bulkDelete('Tipos', null, {})
+    return queryInterface.bulkDelete('Tipos', null, {})
   }
 }

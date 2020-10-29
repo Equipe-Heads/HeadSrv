@@ -7,33 +7,40 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
 
    // Cria um "Model"
-  class tab extends Model {
+  class Pontos extends Model {
     static associate(models) {
-      tab.belongsTo(
+      Pontos.belongsTo(
         models.Pessoas, {
         foreignKey: 'pessoaId',
-        as: 'Pnt', 
+        as: 'End', 
+        allowNull: true
+      }),
+      Pontos.belongsTo(
+        models.Pessoas, {
+        foreignKey: 'reponsavelId',
+        as: 'Rsp', 
         allowNull: true
       })
     }
   }
  
   // Inicializa o "Model"
-  tab.init(
+  Pontos.init(
     
     // Define os Atributos do "Model"
     {
       qrcode: DataTypes.STRING,
       situacao: DataTypes.INTEGER,
+      reponsavelId: DataTypes.INTEGER,
       pessoaId: DataTypes.INTEGER
     },
 
-    // Nome da tabela do "Model"
-    {sequelize, modelName: 'Ponto'}
+    // Nome da Pontosela do "Model"
+    {sequelize, modelName: 'Pontos'}
 
   )
 
   // Retorna a Class "Model"
-  return tab
+  return Pontos
 
 }

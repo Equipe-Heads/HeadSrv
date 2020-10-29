@@ -10,13 +10,13 @@ module.exports = (app) => {
   const pes = app.route('/pes')
   const pnt = app.route('/pnt')
 
-  // Exporta a route "tip"
+  // Exporta "GETs"
   tip.get(cnt.listTip)
   usu.get(cnt.listUsu)
   pes.get(cnt.listPes)
   pnt.get(cnt.listPnt)
  
-  // Exporta a route "usu"
+  // Exporta "POSTs"
   usu.post(cnt.criaUsu)
   pes.post(cnt.criaPes)
   pnt.post(cnt.criaPnt)

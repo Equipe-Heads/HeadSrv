@@ -7,9 +7,9 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
 
   // Cria um "Model"
-  class tab extends Model {
+  class Enderecos extends Model {
     static associate(models) {
-      tab.belongsTo(
+      Enderecos.belongsTo(
         models.Pessoas, {
         foreignKey: 'pessoaId',
         as: 'End', 
@@ -19,22 +19,26 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   // Inicializa o "Model"
-  tab.init(
+  Enderecos.init(
     
     // Define os Atributos do "Model"
     {
-      cep: DataTypes.STRING,
+      logradoro: DataTypes.STRING,
       numero: DataTypes.STRING,
+      bairro: DataTypes.STRING,
       complemento: DataTypes.STRING,
+      cidade: DataTypes.STRING,
+      uf: DataTypes.STRING,
+      cep: DataTypes.STRING,
       pessoaId: DataTypes.INTEGER
     },
 
-    // Nome da tabela do "Model"
-    {sequelize, modelName: 'Endereco'}
+    // Nome da Enderecosela do "Model"
+    {sequelize, modelName: 'Enderecos'}
 
   )
 
   // Retorna a Class "Model"
-  return tab
+  return Enderecos
 
 }
