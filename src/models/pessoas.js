@@ -16,6 +16,38 @@ module.exports = (sequelize, DataTypes) => {
           as: 'Tip', 
           allowNull: false
         }
+      ),
+      Pessoas.hasOne(
+        models.PessoaFis,
+        {
+          foreignKey: 'pessoaId',
+          as: 'Fis', 
+          allowNull: false
+        }
+      ),
+      Pessoas.hasOne(
+        models.PessoaJurs,
+        {
+          foreignKey: 'pessoaId',
+          as: 'Jur', 
+          allowNull: false
+        }
+      ),
+      Pessoas.hasOne(
+        models.Enderecos, 
+        {
+          foreignKey: 'pessoaId',
+          as: 'End', 
+          allowNull: true
+        }
+      ),
+      Pessoas.hasOne(
+        models.Usuarios, 
+        {
+          foreignKey: 'pessoaId',
+          as: 'Usu', 
+          allowNull: true
+        }
       )
     }
   }

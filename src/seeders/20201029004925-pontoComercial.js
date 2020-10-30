@@ -4,13 +4,13 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Pontos', [
       {
-        qrcode: 'Nao Gerado',
+        qrcode: 'Não Gerado',
         situacao: 0,
         reponsavelId: 2,
         pessoaId: 2
       },
       {
-        qrcode: 'Nao Gerado',
+        qrcode: 'Não Gerado',
         situacao: 0,
         reponsavelId: 3,
         pessoaId: 6

@@ -1,30 +1,42 @@
-const mPes = require('../models').Pessoas
+// Models
 const mTip = require('../models').Tipos
-const mEnd = require('../models').Enderecos
 const mPnt = require('../models').Pontos
+const mPes = require('../models').Pessoas
+const mUsu = require('../models').Usuarios
+const mEnd = require('../models').Enderecos
+const mFis = require('../models').PessoaFis
+const mJur = require('../models').PessoaJurs
 
+// Attributes
 const aTip = [ 'tipo' ]
-const aPnt = [ 'situacao', 'qrcode' ]
-const aUsu = [ 'id', 'nome', 'codigo', 'tipoId' ]
-const aPes = [ 'cep', 'numero', 'complemento', 'pessoaId' ]
+const aRsp = [ ['nome', 'Responsável'] ]
+const aJur = [ 'cnpj', 'inscEst', 'inscMun' ]
+const aFis = [ 'cpf', 'rg', 'orgao', 'expedicao' ]
+const aPnt = [ 'qrcode', ['situacao', 'SitPonto'] ]
+const aUsu = [ 'senha', ['situacao', 'SitUsuario'] ]
+const aPes = [ 'codigo', ['nome', 'nome_razaoSocial'] ]
+const aEnd = [ 'logradoro', 'numero', 'bairro', 'complemento', 'cidade', 'uf', 'cep' ]
 
-const iTip = [{ model: mTip, require: true, attributes: aTip, as: 'Tip' }]
+// Include
+const iTip = { model: mTip, attributes: aTip, as: 'Tip' }
+const iFis = { model: mFis, attributes: aFis, as: 'Fis' }
+const iJur = { model: mJur, attributes: aJur, as: 'Jur' }
+const iEnd = { model: mEnd, attributes: aEnd, as: 'End' }
+const iUsu = { model: mUsu, attributes: aUsu, as: 'Usu' }
+const iRsp = { model: mPes, attributes: aRsp, as: 'Rsp' }
+const iPes = { model: mPes, attributes: aPes, as: 'Pes', include: [ iTip, iFis, iJur, iEnd, iUsu ] }
 
-const iPes = [{ model: mPes, require: true, attributes: aUsu, as: 'End', include: iTip }]
+// Ordenação
+const ordId = ['id', 'asc']
 
-const sTip = { raw: true, attributes: ['id', 'tipo'], order: [['id', 'asc']]}
+// Comando Queries
+const sTip = { raw: true, attributes: ['id', 'tipo'], order: [ ordId ]}
+const sUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], order: [ ordId ]}
+const sPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], order: [ ordId ]}
+const sPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], order: [ ordId ]}
 
-const sUsu = { raw: true, attributes: aUsu, include: iTip, order: [[ 'id', 'asc' ]]}
 
-const sPes = { raw: true, attributes: aPes, include: iPes, order: [[ 'id', 'asc' ]]}
-
-const sPnt = { raw: true, attributes: aPnt, include: iPes, order: [[ 'id', 'asc' ]]}
-
-var whr = ''
-var dad = {}
-var sql = {}
-
-/**** Lista de Tipos ****/  
+/**** Lista de Tipos ****/ 
 
 exports.listTip = (req, res) => {
 
@@ -46,25 +58,25 @@ exports.listUsu = (req, res) => {
 
 }
 
-//**** GET - Lista Um ou Todos os Registros da Tabela ****//
+/**** Lista de Pessoas ****/  
 
 exports.listPes = (req, res) => {
 
-  mEnd.findAll(sPes).then(Ret => {
+  mPes.findAll(sPes).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
 
 }
 
-//**** GET - Lista Um ou Todos os Registros da Tabela ****//
+/**** Lista de Pontos Comerciais ****/  
 
 exports.listPnt = (req, res) => {
-
-    mPnt.findAll(sPnt).then(Ret => {
-      res.send(Ret)
-      console.table(Ret)
-    })
+  
+  mPnt.findAll(sPnt).then(Ret => {
+    res.send(Ret)
+    console.table(Ret)
+  })
 
 }
 
@@ -86,11 +98,14 @@ exports.criaUsu = (req, res) => {
 
   //Cria e Salva um Novo Registro na Tabela.
   mPes.create(dad).then(Ret => {
-
-      mPes.findAll(sUsu).then(Ret => {
-        res.send(Ret)
-        console.table(Ret)
-      })
+    mPes.findAll(sUsu).then(Ret => {
+      res.send(Ret)
+      console.table(Ret)
+    })
+      // mPes.findAll(sUsu).then(Ret => {
+      //   res.send(Ret)
+      //   console.table(Ret)
+      // })
 
     }).catch(error => {res.send(error)})
 
@@ -101,7 +116,7 @@ exports.criaUsu = (req, res) => {
 exports.criaPes = (req, res) => {
 
   //Cast JSON para Variaveis
-  var {cep, numero, complemento, nome, codigo, tipoId, id} = req.body
+  var {cep, numero, complemento, nome, codigo, tipo, tipoId, logradoro, bairro, cidade, uf, id} = req.body
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
@@ -122,20 +137,20 @@ exports.criaPes = (req, res) => {
       numero = numero || "S/N"
 
       //Cast Variáveis para JSON
-      dad = {cep, numero, complemento, pessoaId}
+      dad = {cep, numero, complemento, logradoro, bairro, cidade, uf, pessoaId}
 
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
 
-         mEnd.findAll(sPes).then(Ret => {
-            res.send(Ret)
-            console.table(Ret)
-          })
-
+        mPes.findAll(sPes).then(Ret => {
+          res.send(Ret)
+          console.table(Ret)
         })
 
       })
-  }
+  })
+
+}
 
 //**** Inclui Novo Registro na Tabela ****//
 
@@ -156,42 +171,37 @@ exports.criaPnt = (req, res) => {
   //Cria e Salva um Novo Registro na Tabela.
   mPes.create(dad).then(Ret => {
 
-      //Sequencia da Pessoa
-      var pessoaId = Ret.id
+    //Sequencia da Pessoa
+    var pessoaId = Ret.id
 
-      //Padroniza "qrcode"
-      qrcode = qrcode || "Falta Gerar o QRCode"
+    //Padroniza "qrcode"
+    qrcode = qrcode || "Falta Gerar o QRCode"
 
-      //Padroniza "situacao"
-      situacao = situacao || 0
+    //Padroniza "situacao"
+    situacao = situacao || 0
+
+    //Cast Variáveis para JSON
+    dad = {situacao, qrcode, pessoaId}
+
+    //Cria e Salva um Novo Registro na Tabela.
+    mPnt.create(dad).then(Ret => {
+
+      //Padroniza "cep"
+      cep = cep || "00000000"
+
+      //Padroniza "numero"
+      numero = numero || "S/N"
 
       //Cast Variáveis para JSON
-      dad = {situacao, qrcode, pessoaId}
+      dad = {cep, numero, complemento, pessoaId}
 
       //Cria e Salva um Novo Registro na Tabela.
-      mPnt.create(dad).then(Ret => {
-
-        //Padroniza "cep"
-        cep = cep || "00000000"
-
-        //Padroniza "numero"
-        numero = numero || "S/N"
-
-        //Cast Variáveis para JSON
-        dad = {cep, numero, complemento, pessoaId}
-
-        //Cria e Salva um Novo Registro na Tabela.
-        mEnd.create(dad).then(Ret => {
-
-           mPnt.findAll(sPnt).then(Ret => {
-              res.send(Ret)
-              console.table(Ret)
-            })
-
-          })
+      mEnd.create(dad).then(Ret => {
+        mPnt.findAll(sPnt).then(Ret => {
+          res.send(Ret)
+          console.table(Ret)
         })
-
-
       })
-  }
-
+    })
+  })
+}
