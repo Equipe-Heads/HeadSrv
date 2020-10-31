@@ -14,7 +14,7 @@ const aJur = [ 'cnpj', 'inscEst', 'inscMun' ]
 const aFis = [ 'cpf', 'rg', 'orgao', 'expedicao' ]
 const aPnt = [ 'qrcode', ['situacao', 'SitPonto'] ]
 const aUsu = [ 'senha', ['situacao', 'SitUsuario'] ]
-const aPes = [ 'codigo', ['nome', 'nome_razaoSocial'] ]
+const aPes = [ ['id', 'idPessoa'], 'codigo', ['nome', 'nome_razaoSocial'] ]
 const aEnd = [ 'logradoro', 'numero', 'bairro', 'complemento', 'cidade', 'uf', 'cep' ]
 
 // Include
@@ -72,8 +72,8 @@ exports.listPes = (req, res) => {
 /**** Lista de Pontos Comerciais ****/  
 
 exports.listPnt = (req, res) => {
-  
-  mPnt.findAll(sPnt).then(Ret => {
+
+ mPnt.findAll(sPnt).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
@@ -98,16 +98,17 @@ exports.criaUsu = (req, res) => {
 
   //Cria e Salva um Novo Registro na Tabela.
   mPes.create(dad).then(Ret => {
-    mPes.findAll(sUsu).then(Ret => {
+
+    whr = {id: Ret.id}
+      
+    wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
+
+    mPes.findAll(wUsu).then(Ret => {
       res.send(Ret)
       console.table(Ret)
     })
-      // mPes.findAll(sUsu).then(Ret => {
-      //   res.send(Ret)
-      //   console.table(Ret)
-      // })
 
-    }).catch(error => {res.send(error)})
+  })
 
 }
 
@@ -133,6 +134,10 @@ exports.criaPes = (req, res) => {
       //Sequencia da Pessoa
       var pessoaId = Ret.id
 
+       whr = {id: Ret.id}
+
+       wPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], where: whr, order: [ ordId ]}
+
       //Padroniza "numero"
       numero = numero || "S/N"
 
@@ -142,7 +147,8 @@ exports.criaPes = (req, res) => {
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
 
-        mPes.findAll(sPes).then(Ret => {
+  
+        mPes.findAll(wPes).then(Ret => {
           res.send(Ret)
           console.table(Ret)
         })
@@ -174,6 +180,11 @@ exports.criaPnt = (req, res) => {
     //Sequencia da Pessoa
     var pessoaId = Ret.id
 
+    whr = {pessoaId: Ret.id}
+
+    wPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], where: whr, order: [ ordId ]}
+
+
     //Padroniza "qrcode"
     qrcode = qrcode || "Falta Gerar o QRCode"
 
@@ -197,11 +208,16 @@ exports.criaPnt = (req, res) => {
 
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
-        mPnt.findAll(sPnt).then(Ret => {
+        
+        mPnt.findAll(wPnt).then(Ret => {
           res.send(Ret)
           console.table(Ret)
         })
+      
       })
+    
     })
+  
   })
+
 }
