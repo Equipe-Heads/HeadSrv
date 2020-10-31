@@ -97,7 +97,7 @@ function getUsu(whr) {
 exports.criaUsu = (req, res) => {
 
   //Cast JSON para Variaveis
-  var {nome, codigo, tipoId} = req.body
+  var {nome, codigo, tipoId, senha, sitUsuario} = req.body
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
@@ -111,15 +111,38 @@ exports.criaUsu = (req, res) => {
   //Cria e Salva um Novo Registro na Tabela.
   mPes.create(dad).then(Ret => {
 
+    //Sequencia da Pessoa
+    var pessoaId = Ret.id
+
     whr = {id: Ret.id}
       
     wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
 
-    mPes.findOne(wUsu).then(Ret => {
-      res.send(Ret)
-      console.table(Ret)
-    })
-    
+    //Checa e Grava Usuário
+    if (senha == '') {
+      mPes.findOne(wUsu).then(Ret => {
+        res.send(Ret)
+        console.table(Ret)
+      })
+    }
+    else
+    {
+
+      //Padroniza "situacao"
+      situacao = sitUsuario || 0
+
+      //Cast Variáveis para JSON
+      dad = {senha, situacao, pessoaId}
+
+      //Cria e Salva um Novo Registro na Tabela.
+      mUsu.create(dad).then(Ret => {
+        mPes.findOne(wUsu).then(Ret => {
+          res.send(Ret)
+          console.table(Ret)
+        })
+      })
+    }
+
   })
 
 }
@@ -129,7 +152,10 @@ exports.criaUsu = (req, res) => {
 exports.criaPes = (req, res) => {
 
   //Cast JSON para Variaveis
-  var {cep, numero, complemento, nome, codigo, tipo, tipoId, logradoro, bairro, cidade, uf, id} = req.body
+  var {
+    cep, numero, complemento, logradoro, bairro, cidade, uf,
+    sitUsuario, nome, codigo, tipo, tipoId, 
+    senha, cpf, rg, orgao, expedicao, cnpj, inscEst, inscMun, id} = req.body  
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
@@ -146,9 +172,27 @@ exports.criaPes = (req, res) => {
       //Sequencia da Pessoa
       var pessoaId = Ret.id
 
-       whr = {id: Ret.id}
+      whr = {id: Ret.id}
 
-       wPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], where: whr, order: [ ordId ]}
+      wPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], where: whr, order: [ ordId ]}
+
+      if (cpf != null) {
+
+        //Cast Variáveis para JSON
+        dad = {cpf, rg, orgao, expedicao, pessoaId}
+
+        //Cria e Salva um Novo Registro na Tabela.
+        mFis.create(dad)
+
+      } else if (cnpj != null) {
+
+        //Cast Variáveis para JSON
+        dad = {cnpj, inscEst, inscMun, pessoaId}
+
+        //Cria e Salva um Novo Registro na Tabela.
+        mJur.create(dad)
+
+      }
 
       //Padroniza "numero"
       numero = numero || "S/N"
@@ -159,11 +203,29 @@ exports.criaPes = (req, res) => {
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
 
-  
-        mPes.findOne(wPes).then(Ret => {
-          res.send(Ret)
-          console.table(Ret)
-        })
+        //Checa e Grava Usuário
+        if (senha == '') {
+          mPes.findOne(wPes).then(Ret => {
+            res.send(Ret)
+            console.table(Ret)
+          })
+        }
+        else
+        {
+          //Padroniza "situacao"
+          situacao = sitUsuario || 0
+
+          //Cast Variáveis para JSON
+          dad = {senha, situacao, pessoaId}
+
+          //Cria e Salva um Novo Registro na Tabela.
+          mUsu.create(dad).then(Ret => {
+            mPes.findOne(wPes).then(Ret => {
+              res.send(Ret)
+              console.table(Ret)
+            })
+          })
+        }
 
       })
   })
@@ -175,7 +237,10 @@ exports.criaPes = (req, res) => {
 exports.criaPnt = (req, res) => {
 
   //Cast JSON para Variaveis
-  var {situacao, qrcode, cep, numero, complemento, nome, codigo, tipoId, id} = req.body
+  var {
+    cep, numero, complemento, logradoro, bairro, cidade, uf,
+    sitPonto, sitUsuario, qrcode, nome, codigo, tipoId, senha,
+    SitUsuario, cpf, rg, orgao, expedicao, cnpj, inscEst, inscMun, id} = req.body
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
@@ -196,12 +261,29 @@ exports.criaPnt = (req, res) => {
 
     wPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], where: whr, order: [ ordId ]}
 
+    if (cpf != null) {
+
+      //Cast Variáveis para JSON
+      dad = {cpf, rg, orgao, expedicao, pessoaId}
+
+      //Cria e Salva um Novo Registro na Tabela.
+      mFis.create(dad)
+
+    } else if (cnpj != null) {
+
+      //Cast Variáveis para JSON
+      dad = {cnpj, inscEst, inscMun, pessoaId}
+
+      //Cria e Salva um Novo Registro na Tabela.
+      mJur.create(dad)
+
+    }
 
     //Padroniza "qrcode"
     qrcode = qrcode || "Falta Gerar o QRCode"
 
     //Padroniza "situacao"
-    situacao = situacao || 0
+    situacao = sitPonto || 0
 
     //Cast Variáveis para JSON
     dad = {situacao, qrcode, pessoaId}
@@ -216,15 +298,36 @@ exports.criaPnt = (req, res) => {
       numero = numero || "S/N"
 
       //Cast Variáveis para JSON
-      dad = {cep, numero, complemento, pessoaId}
+      dad = {cep, numero, complemento, logradoro, bairro, cidade, uf, pessoaId}
 
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
         
-        mPnt.findOne(wPnt).then(Ret => {
-          res.send(Ret)
-          console.table(Ret)
-        })
+        //Checa e Grava Usuário
+        if (senha == '') {
+          mPnt.findOne(wPnt).then(Ret => {
+            res.send(Ret)
+            console.table(Ret)
+          })
+        }
+        else
+        {
+    
+          //Padroniza "situacao"
+          situacao = sitUsuario || 0
+    
+          //Cast Variáveis para JSON
+          dad = {senha, situacao, pessoaId}
+
+          //Cria e Salva um Novo Registro na Tabela.
+          mUsu.create(dad).then(Ret => {
+            mPnt.findOne(wPnt).then(Ret => {
+              res.send(Ret)
+              console.table(Ret)
+            })
+          })
+        }
+
       
       })
     
