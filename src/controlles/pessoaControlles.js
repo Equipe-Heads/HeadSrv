@@ -82,6 +82,18 @@ exports.listPnt = (req, res) => {
 
 /**** Inclui Novo Registro na Tabela ****/
 
+function getUsu(whr) {
+
+  wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
+
+  mPes.findAll(wUsu).then(Ret => {
+    return Ret
+    // res.send(Ret)
+    // console.table(Ret)
+  })
+
+}
+
 exports.criaUsu = (req, res) => {
 
   //Cast JSON para Variaveis
@@ -103,11 +115,11 @@ exports.criaUsu = (req, res) => {
       
     wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
 
-    mPes.findAll(wUsu).then(Ret => {
+    mPes.findOne(wUsu).then(Ret => {
       res.send(Ret)
       console.table(Ret)
     })
-
+    
   })
 
 }
@@ -148,7 +160,7 @@ exports.criaPes = (req, res) => {
       mEnd.create(dad).then(Ret => {
 
   
-        mPes.findAll(wPes).then(Ret => {
+        mPes.findOne(wPes).then(Ret => {
           res.send(Ret)
           console.table(Ret)
         })
@@ -209,7 +221,7 @@ exports.criaPnt = (req, res) => {
       //Cria e Salva um Novo Registro na Tabela.
       mEnd.create(dad).then(Ret => {
         
-        mPnt.findAll(wPnt).then(Ret => {
+        mPnt.findOne(wPnt).then(Ret => {
           res.send(Ret)
           console.table(Ret)
         })
