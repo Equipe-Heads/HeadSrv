@@ -1,24 +1,28 @@
-// Usa o "pessoaControlles.js"
-const cnt = require('../controlles/pessoaControlles.js')
+// Usa o "(...)Controlles.js"
+const cPes = require('../controlles/pessoaControlles.js')
+const cTit = require('../controlles/tituloControlles.js')
 
 // Exporta o "Módulo"
 module.exports = (app) => {
 
   //Define Routs
-  const tip = app.route('/tip')
-  const usu = app.route('/usu')
-  const pes = app.route('/pes')
-  const pnt = app.route('/pnt')
+  const rTit = app.route('/tit')
+  const rTip = app.route('/tip')
+  const rUsu = app.route('/usu')
+  const rPes = app.route('/pes')
+  const rPnt = app.route('/pnt')
 
   // Exporta "GETs"
-  tip.get(cnt.listTip)
-  usu.get(cnt.listUsu)
-  pes.get(cnt.listPes)
-  pnt.get(cnt.listPnt)
+  rTit.get(cTit.listTit)
+  rTip.get(cPes.listTip)
+  rUsu.get(cPes.listUsu)
+  rPes.get(cPes.listPes)
+  rPnt.get(cPes.listPnt)
  
   // Exporta "POSTs"
-  usu.post(cnt.criaUsu)
-  pes.post(cnt.criaPes)
-  pnt.post(cnt.criaPnt)
+  rTit.post(cTit.criaTit)
+  rUsu.post(cPes.criaUsu)
+  rPes.post(cPes.criaPes)
+  rPnt.post(cPes.criaPnt)
 
 }

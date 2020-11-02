@@ -82,18 +82,6 @@ exports.listPnt = (req, res) => {
 
 /**** Inclui Novo Registro na Tabela ****/
 
-function getUsu(whr) {
-
-  wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
-
-  mPes.findAll(wUsu).then(Ret => {
-    return Ret
-    // res.send(Ret)
-    // console.table(Ret)
-  })
-
-}
-
 exports.criaUsu = (req, res) => {
 
   //Cast JSON para Variaveis

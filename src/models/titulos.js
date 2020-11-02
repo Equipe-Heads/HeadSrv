@@ -5,12 +5,15 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Titulos extends Model {
     static associate(models) {
-      Titulos.belongsTo(models.Pessoas, {
-        targetKey: 'id',
-        as: 'idPessoa'
-      })  
+     Titulos.belongsTo(
+        models.Pessoas, {
+        foreignKey: 'pessoaId',
+        as: 'Pes', 
+        allowNull: true
+      })
     }
-  };
+  }
+
   Titulos.init({
     numero: DataTypes.STRING,
     situacao: DataTypes.STRING,

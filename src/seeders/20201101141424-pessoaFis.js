@@ -2,14 +2,13 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-
     return queryInterface.bulkInsert('PessoaFis', [
       {
-        pessoaId: 2,
-        cpf: '12345678900',
-        rg: '1234567',
+        pessoaId: 1,
+        cpf: '35481846420',
+        rg: '2476185',
         orgao: 'SDS-PE',
-        expedicao: null
+        expedicao: '2019-12-20'
       }
     ], {})
   },
