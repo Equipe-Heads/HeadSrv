@@ -9,7 +9,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       numero: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,  
+      unique: 'NumTipTituloIndex'
+      },
+      tipo: {
+        type: Sequelize.STRING,  
+      unique: 'NumTipTituloIndex'
       },
       situacao: {
         type: Sequelize.STRING

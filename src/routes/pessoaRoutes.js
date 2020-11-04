@@ -7,6 +7,7 @@ module.exports = (app) => {
 
   //Define Routs
   const rTit = app.route('/tit')
+  const rPag = app.route('/pag')
   const rTip = app.route('/tip')
   const rUsu = app.route('/usu')
   const rPes = app.route('/pes')
@@ -21,6 +22,7 @@ module.exports = (app) => {
  
   // Exporta "POSTs"
   rTit.post(cTit.criaTit)
+  rPag.post(cTit.criaPag)
   rUsu.post(cPes.criaUsu)
   rPes.post(cPes.criaPes)
   rPnt.post(cPes.criaPnt)

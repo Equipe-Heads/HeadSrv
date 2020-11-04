@@ -15,13 +15,18 @@ module.exports = (sequelize, DataTypes) => {
   };
   PessoaFis.init({
     pessoaId: DataTypes.INTEGER,
-    cpf: DataTypes.STRING,
+    cpf: { 
+      type: DataTypes.STRING, 
+      primaryKey: true 
+    },
     rg: DataTypes.STRING,
     orgao: DataTypes.STRING,
     expedicao: DataTypes.DATE
-  }, {
-    sequelize,
-    modelName: 'PessoaFis',
-  });
+    }, 
+    {
+      sequelize,
+      modelName: 'PessoaFis',
+    }
+  );
   return PessoaFis;
 };
