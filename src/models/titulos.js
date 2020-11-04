@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     situacao: {
       type: DataTypes.STRING,
-      defaultValue: 0
+      defaultValue: 'A'
     },
     lancto: {
       type: DataTypes.DATE,

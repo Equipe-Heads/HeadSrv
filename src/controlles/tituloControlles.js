@@ -25,22 +25,23 @@ const iFis = { model: mFis, attributes: aFis, as: 'Fis' }
 const iJur = { model: mJur, attributes: aJur, as: 'Jur' }
 const iEnd = { model: mEnd, attributes: aEnd, as: 'End' }
 const iPag = { model: mPag, attributes: aPag, as: 'Pag' }
+const iUsu = { model: mPes, attributes: aPes, as: 'Pes' }
 const iPes = { model: mPes, attributes: aPes, as: 'Pes', 
   include: [ iTip, iFis, iJur, iEnd ] }
 
 // Ordenação
 const ordId = ['id', 'asc']
 
-// Comando Queries
-const sTit = { raw: true, attributes: aTit, include: [ iPag, iPes ], order: [ ordId ]}
-
 /**** Lista de Registros ****/ 
 
 exports.listTit = (req, res) => {
 
+  // Comando Queries
+  const sTit = { raw: true, attributes: aTit, include: [ iPag, iPes ], order: [ ordId ]}
+
   mTit.findAll(sTit).then(Ret => {
     res.send(Ret)
-    console.table(Ret)
+    console.log(Ret)
   })
 
 }
@@ -64,7 +65,7 @@ exports.criaTit = (req, res) => {
   //Cria e Salva um Novo Registro na Tabela.
   mTit.create(dad).then(Ret => {
     //
-    const wTit = { raw: true, attributes: aTit, include: [ iPes ], 
+    const wTit = { raw: true, attributes: aTit, include: [ iUsu ], 
       where: {id: Ret.id}, order: [ ordId ]}
     //
     mTit.findOne(wTit).then(Ret => {
@@ -88,88 +89,112 @@ exports.criaPag = (req, res) => {
 
   //Monta Comando SELECT
   const wTit = { raw: true, attributes: aTit, 
-    where: {id: tituloId}, order: [ ordId ]}
+    where: {id: tituloId}, include: [ iPag ], order: [ ordId ]}
 
   //Resgata Valor Liquido do Titulo
   mTit.findOne(wTit).then(Ret => {
 
-    //Resgata Dados do Titulo a Ser Pago
-    var { numTitulo, sitTitulo, tipTitulo, liquido, vencto, pessoaId } = Ret
+    if (Ret == null) {
 
-    //
-    valLiquido = liquido
-    datvencto = vencto
+      msg = {
+        "Mensagem": "Título Não Encontrado",
+        "where": {tituloId: tituloId}
+      }
+      console.log(msg)
+      res.send(msg)
+      
+    } else 
+    if (Ret.sitTitulo != 'A') {
+      msg = {
+        "Mensagem": "Título Já Pago",
+        "where": {tituloId: tituloId},
+        "Dados": Ret
+      }
+      console.log(msg)
+      res.send(msg)
+    } else // if (Ret == null) 
+    {
 
-    //Define Nova Situação do Titulo
-    if (valLiquido == valPago) {
-      sitTitulo = 'L' // Liquidado   
-    }
-    else 
-    if (valLiquido <= valPago) {
-      sitTitulo = 'J' // Pago com Juros   
-    }
-    else 
-    if (pagDesconto) {
-      sitTitulo = 'D' // Pago com Desconto   
-    }
-    else {
-      sitTitulo = 'P' //Pago Parcialmente
-    }
+      //Resgata Dados do Titulo a Ser Pago
+      var { numTitulo, sitTitulo, tipTitulo, liquido, vencto, pessoaId } = Ret
 
-  tipo = tipPagto
-  pagto = datPagto
-  pago = valPago
+      //
+      valLiquido = liquido
+      datvencto = vencto
 
-  //Cast Variáveis para JSON 
-  dad = { tipo, pagto,  pago, tituloId }
+      //Define Nova Situação do Titulo
+      if (valLiquido == valPago) {
+        sitTitulo = 'L' // Liquidado   
+      }
+      else 
+      if (valLiquido <= valPago) {
+        sitTitulo = 'J' // Pago com Juros   
+      }
+      else 
+      if (pagDesconto) {
+        sitTitulo = 'D' // Pago com Desconto   
+      }
+      else {
+        sitTitulo = 'P' //Pago Parcialmente
+      }
 
-  //Cria e Salva um Novo Registro na Tabela.
-  mPag.create(dad).then(Ret => {
+      tipo = tipPagto
+      pagto = datPagto
+      pago = valPago
 
-    //Atualiza Situação do Título
-    mTit.update({ situacao: sitTitulo }, { where: { id: tituloId } } ).then(Ret => {
-      //Monta Comando SELECT
-      const wTit = { raw: true, attributes: aTit, include: [ iPag, iPes ], 
-        where: {id: tituloId}, order: [ ordId ]}
+      //Cast Variáveis para JSON 
+      dad = { tipo, pagto,  pago, tituloId }
 
-      //Dados do Titulo Pago
-      mTit.findOne(wTit).then(Ret => {
-        res.send(Ret)
-        console.table(Ret)
+      //Cria e Salva um Novo Registro na Tabela.
+      mPag.create(dad).then(Ret => {
 
-        //Novo Titulo
-        if (sitTitulo == 'P') {
+        //Atualiza Situação do Título
+        mTit.update({ situacao: sitTitulo }, { where: { id: tituloId } } ).then(Ret => {
+          //Monta Comando SELECT
+          const wTit = { raw: true, attributes: aTit, include: [ iPag, iUsu ], 
+            where: {id: tituloId}, order: [ ordId ]}
 
-          numero = numTitulo
-          situacao = 'A'
-          tipo = tipTitulo
-          liquido = valLiquido - valPago
-          vencto = datvencto
-          lancto = Sequelize.NOW
+          //Dados do Titulo Pago
+          mTit.findOne(wTit).then(Ret => {
+            res.send(Ret)
+            console.table(Ret)
 
-          //Cast Variáveis para Novo Titulo 
-          dad = { numero, liquido, pessoaId, situacao, lancto, vencto, tipo} // 
+            //Novo Titulo
+            if (sitTitulo == 'P') {
 
-          //Cria e Salva um Novo Registro na Tabela.
-          mTit.create(dad).then(Ret => {
-            //
-            const wTit = { raw: true, attributes: aTit, //include: [ iPag, iPes ], 
-              where: {numero: Ret.numero}, order: [ ordId ]}
-            //
-            mTit.findAll(wTit).then(Ret => {
-              console.table(Ret)
-            })
-            
-          })
+              numero = numTitulo
+              situacao = 'A'
+              tipo = tipTitulo
+              liquido = valLiquido - valPago
+              vencto = datvencto
+              lancto = Sequelize.NOW
 
-        } //if (sitTitulo == 'P') //Novo Titulo
+              //Cast Variáveis para Novo Titulo 
+              dad = { numero, liquido, pessoaId, situacao, lancto, vencto, tipo} // 
 
-      }) // mTit.findOne //Dados do Titulo Pago
+              //Cria e Salva um Novo Registro na Tabela.
+              mTit.create(dad).then(Ret => {
+                //
+                const wTit = { raw: true, attributes: aTit, include: [ iPag ], 
+                  where: {numero: Ret.numero}, order: [ ordId ]}
+                //
+                mTit.findAll(wTit).then(Ret => {
+                  console.table(Ret)
+                })
+                
+              })
+
+            } //if (sitTitulo == 'P') //Novo Titulo
+
+          }) // mTit.findOne //Dados do Titulo Pago
 
 
-    }) // mTit.update
+        }) // mTit.update
 
-  }) // mPag.create
+      }) // mPag.create
+
+    } // else // if (Ret == null)
+
   }) // mTit.findOne //Resgata Valor Liquido do Titulo
 
 } // exports.criaPag
