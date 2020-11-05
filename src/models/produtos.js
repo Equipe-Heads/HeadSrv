@@ -17,7 +17,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Produtos.init({
-    descricao: DataTypes.STRING
+    descricao: DataTypes.STRING,
+    origem: {
+      type: DataTypes.STRING,
+      defaultValue: 'A'
+    },
+    beneficios: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Produtos',

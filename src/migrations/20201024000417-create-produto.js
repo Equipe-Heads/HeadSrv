@@ -11,6 +11,12 @@ module.exports = {
       descricao: {
         type: Sequelize.STRING
       },
+      origem: {
+        type: Sequelize.STRING
+      },
+      beneficios: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: true,
         type: Sequelize.DATE
