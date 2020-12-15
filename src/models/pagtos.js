@@ -1,8 +1,12 @@
 'use strict'
 
-const { Sequelize, Model } = require('sequelize');
+// Usa o "sequelize"
+const {Model, Sequelize} = require('sequelize')
 
+// Exporta o "Módulo"
 module.exports = (sequelize, DataTypes) => {
+
+  // Cria um "Model"
   class Pagtos extends Model {
     static associate(models) {
      // Pagtos.belongsTo(
@@ -13,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
      //  })
     }
   }
+
+  // Inicializa o "Model"
   Pagtos.init({
     tipo: {
       type: DataTypes.STRING,

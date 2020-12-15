@@ -1,8 +1,12 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+'use strict'
+
+// Usa o "sequelize"
+const {Model} = require('sequelize')
+
+// Exporta o "Módulo"
 module.exports = (sequelize, DataTypes) => {
+
+  // Cria um "Model"
   class Produtos extends Model {
     /**
      * Helper method for defining associations.
@@ -16,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       })  
     }
   };
+
+  // Inicializa o "Model"
   Produtos.init({
     descricao: DataTypes.STRING,
     origem: {

@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
 
   } // class ProdOrgs extends Model
 
+  // Inicializa o "Model"
   ProdOrgs.init(
     //Atributtes
     {

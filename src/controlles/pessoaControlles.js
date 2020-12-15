@@ -29,18 +29,13 @@ const iPes = { model: mPes, attributes: aPes, as: 'Pes', include: [ iTip, iFis, 
 // Ordenação
 const ordId = ['id', 'asc']
 
-// Comando Queries
-const sTip = { raw: true, attributes: ['id', 'tipo'], order: [ ordId ]}
-const sUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], order: [ ordId ]}
-const sPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], order: [ ordId ]}
-const sPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], order: [ ordId ]}
-
-
 /**** Lista de Tipos ****/ 
 
 exports.listTip = (req, res) => {
 
-  mTip.findAll(sTip).then(Ret => {
+  const sql = { raw: true, attributes: ['id', 'tipo'], order: [ ordId ]}
+
+  mTip.findAll(sql).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
@@ -51,7 +46,9 @@ exports.listTip = (req, res) => {
 
 exports.listUsu = (req, res) => {
 
-  mPes.findAll(sUsu).then(Ret => {
+  const sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], order: [ ordId ]}
+
+  mPes.findAll(sql).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
@@ -61,8 +58,8 @@ exports.listUsu = (req, res) => {
 /**** Lista de Pessoas ****/  
 
 exports.listPes = (req, res) => {
-
-  mPes.findAll(sPes).then(Ret => {
+  const sql = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], order: [ ordId ]}
+  mPes.findAll(sql).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
@@ -72,8 +69,8 @@ exports.listPes = (req, res) => {
 /**** Lista de Pontos Comerciais ****/  
 
 exports.listPnt = (req, res) => {
-
- mPnt.findAll(sPnt).then(Ret => {
+  const sql = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], order: [ ordId ]}
+  mPnt.findAll(sql).then(Ret => {
     res.send(Ret)
     console.table(Ret)
   })
@@ -90,50 +87,97 @@ exports.criaUsu = (req, res) => {
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
 
-  //Padroniza "codigo"
-  codigo = codigo || "Não informado"
+  sql = { raw: true, attributes: aTip, where: {id: tipoId}}
 
-  //Cast Variáveis para JSON
-  dad = {nome, codigo, tipoId}
+  mTip.findOne(sql).then(Ret => {
 
-  //Cria e Salva um Novo Registro na Tabela.
-  mPes.create(dad).then(Ret => {
-
-    //Sequencia da Pessoa
-    var pessoaId = Ret.id
-
-    whr = {id: Ret.id}
-      
-    wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr, order: [ ordId ]}
-
-    //Checa e Grava Usuário
-    if (senha == '') {
-      mPes.findOne(wUsu).then(Ret => {
-        res.send(Ret)
-        console.table(Ret)
-      })
-    }
-    else
+    if (Ret == null) {
+      msg = {
+        "Mensagem": 'O "tipoId" NÃO Cadastrado',
+        "Dados": req.body
+      }
+      res.send(msg)
+      console.table(msg)
+    } else
     {
 
-      //Padroniza "situacao"
-      situacao = sitUsuario || 0
+      //Padroniza "codigo"
+      codigo = codigo || "Não informado"
 
-      //Cast Variáveis para JSON
-      dad = {senha, situacao, pessoaId}
+      if (codigo == "Não informado") {
+        msg = {
+          "Mensagem": 'O "Código do Usuário" DEVE ser Informado',
+          "Dados": req.body
+        }
+        res.send(msg)
+        console.table(msg)
+      } else 
+      {
 
-      //Cria e Salva um Novo Registro na Tabela.
-      mUsu.create(dad).then(Ret => {
-        mPes.findOne(wUsu).then(Ret => {
-          res.send(Ret)
-          console.table(Ret)
-        })
-      })
-    }
+        sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: {codigo: codigo}}
 
-  })
+        mPes.findOne(sql).then(Ret => {
 
-}
+          if (Ret != null) {
+            msg = {
+              "Mensagem": '"Código do Usuário" JÁ Cadastrado',
+              "Dados": Ret
+            }
+            res.send(msg)
+            console.table(msg)
+          } else 
+          { 
+
+            //Cast Variáveis para JSON
+            dad = {nome, codigo, tipoId}
+
+            //Cria e Salva um Novo Registro na Tabela.
+            mPes.create(dad).then(Ret => {
+
+              //Sequencia da Pessoa
+              var pessoaId = Ret.id
+
+              whr = {id: Ret.id}
+                
+              wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr}
+
+              //Checa e Grava Usuário
+              if (senha == '') {
+                mPes.findOne(wUsu).then(Ret => {
+                  res.send(Ret)
+                  console.table(Ret)
+                })
+              } else { 
+
+                //Padroniza "situacao"
+                situacao = sitUsuario || 0
+
+                //Cast Variáveis para JSON
+                dad = {senha, situacao, pessoaId}
+
+                //Cria e Salva um Novo Registro na Tabela.
+                mUsu.create(dad).then(Ret => {
+                  mPes.findOne(wUsu).then(Ret => {
+                    res.send(Ret)
+                    console.table(Ret)
+                  })
+                }) // mUsu.create(dad).then
+
+              } // // ifelse (senha == '')
+
+            }) // mPes.create(dad).then
+
+          } //ifelse (Ret != null)
+
+        }) // mPes.findOne(sql).then
+
+      } // ifelse (codigo == "Não informado")
+
+    } // if (Ret != null) - "tipoId"
+
+  }) // mTip.findOne(sql).then
+
+} // exports.criaUsu = (req, res)
 
 //**** Inclui Novo Registro na Tabela ****//
 
@@ -143,7 +187,8 @@ exports.criaPes = (req, res) => {
   var {
     cep, numero, complemento, logradoro, bairro, cidade, uf,
     sitUsuario, nome, codigo, tipo, tipoId, 
-    senha, cpf, rg, orgao, expedicao, cnpj, inscEst, inscMun, id} = req.body  
+    senha, cpf, rg, orgao, expedicao, cnpj, inscEst, inscMun,
+    responsavel, id} = req.body  
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
@@ -162,9 +207,9 @@ exports.criaPes = (req, res) => {
 
       whr = {id: Ret.id}
 
-      wPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], where: whr, order: [ ordId ]}
+      wPes = { raw: true, attributes: aPes, include: [ iTip, iFis, iJur, iEnd, iUsu ], where: whr}
 
-      if (cpf != null) {
+      if (cpf != '') {
 
         //Cast Variáveis para JSON
         dad = {cpf, rg, orgao, expedicao, pessoaId}
@@ -172,7 +217,7 @@ exports.criaPes = (req, res) => {
         //Cria e Salva um Novo Registro na Tabela.
         mFis.create(dad)
 
-      } else if (cnpj != null) {
+      } else if (cnpj != '') {
 
         //Cast Variáveis para JSON
         dad = {cnpj, inscEst, inscMun, pessoaId}
@@ -247,7 +292,7 @@ exports.criaPnt = (req, res) => {
 
     whr = {pessoaId: Ret.id}
 
-    wPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], where: whr, order: [ ordId ]}
+    wPnt = { raw: true, attributes: aPnt, include: [ iPes, iRsp ], where: whr}
 
     if (cpf != null) {
 
