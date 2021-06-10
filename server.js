@@ -1,15 +1,17 @@
-//Importar uma Instância/Tipo do Express
+//Importar uma Instância/Tipo do Express para a Aplicação
 const express = require('express')
 
-//Cria um objeto do Tipo "Express"
+//Cria um objeto do Tipo "Express" (Variável que Represnta minha Aplicação)
 const app = express()
 
 //Utilizar o body-passer
 const bdp = require('body-parser')
+
 //"extended=true" permite que o expres entenda o objeto como uma matriz ou uma string
-app.use(bdp.urlencoded( { extended:true }))
+app.use( bdp.urlencoded( { extended:true } ) )
+
 //Define o formata que queremos TAMBÉM utiliza o modo JSON
-app.use(bdp.json())
+app.use( bdp.json() )
 
 //Resgata a variarável de ambiente "PORT" ou este valor
 const port = process.env.PORT || 5000
