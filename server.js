@@ -1,6 +1,9 @@
 //Importar uma Instância/Tipo do Express para a Aplicação
 const express = require('express')
 
+//Importar uma Instância "Biblioteca que Gera Token"
+const jwt = require('jsonwebtoken')
+
 //Cria um objeto do Tipo "Express" (Variável que Represnta minha Aplicação)
 const app = express()
 

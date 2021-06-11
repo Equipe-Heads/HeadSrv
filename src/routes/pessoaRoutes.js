@@ -15,6 +15,7 @@ module.exports = (app) => {
   const rUsu = app.route('/usu')
   const rPes = app.route('/pes')
   const rPnt = app.route('/pnt')
+  const rLog = app.route('/log')
 
   // Exporta "GETs"
   rOrg.get(cPrd.listOrg)
@@ -22,10 +23,11 @@ module.exports = (app) => {
   rTit.get(cTit.listTit)
   rTip.get(cPes.listTip)
   rUsu.get(cPes.listUsu)
-  rPes.get(cPes.listPes)
+  rPes.get( (req, res, next) => { next() }, cPes.listPes)// Rota Protegida
   rPnt.get(cPes.listPnt)
  
   // Exporta "POSTs"
+  rLog.post(cPes.autenticacao)
   rOrg.post(cPrd.criaOrg)
   rPrd.post(cPrd.criaPrd)
   rTit.post(cTit.criaTit)

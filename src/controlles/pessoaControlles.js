@@ -1,3 +1,12 @@
+// Importa "Biblioteca de Criptografia"
+const bcrypt = require('bcryptjs')
+
+//Importa Objeto Toke do arquivo "chaveSecreta.js"
+const { token } = require('../config/chaveSecreta')
+
+//Importar uma Instância "Biblioteca que Gera Token"
+const jwt = require('jsonwebtoken')
+
 // Models
 const mTip = require('../models').Tipos
 const mPnt = require('../models').Pontos
@@ -13,7 +22,7 @@ const aRsp = [ ['nome', 'Responsável'] ]
 const aJur = [ 'cnpj', 'inscEst', 'inscMun' ]
 const aFis = [ 'cpf', 'rg', 'orgao', 'expedicao' ]
 const aPnt = [ 'qrcode', ['situacao', 'SitPonto'] ]
-const aUsu = [ 'senha', ['situacao', 'SitUsuario'] ]
+const aUsu = [ 'senha', ['situacao', 'SitUsuario'], 'nivel' ]
 const aPes = [ ['id', 'idPessoa'], 'codigo', ['nome', 'nome_razaoSocial'] ]
 const aEnd = [ 'logradoro', 'numero', 'bairro', 'complemento', 'cidade', 'uf', 'cep' ]
 
@@ -39,7 +48,97 @@ exports.listTip = (req, res) => {
     res.send(Ret)
     console.table(Ret)
   })
+}
 
+/**** Autenticação do Usuário ****/  
+
+exports.autenticacao = async (req, res) => {
+
+  //Cast JSON para Variaveis
+  var {codigo, senha} = req.body
+
+  //Padroniza "codigo"
+  codigo = codigo || "Não informado"
+  if (codigo == "Não informado") {
+    return res.status(400).json({message:"O Código do Usuário DEVE ser Informado"}) 
+  }    
+
+  //Padroniza "senha"
+  senha = senha || "Não informado"
+  if (senha == "Não informado") {
+    return res.status(400).json({message:"O Senha do Usuário DEVE ser Informada"}) 
+  }    
+
+  //Criptografa a Senha
+  const password = await bcrypt.hash(senha, 10);
+
+  //Comando Para Checar Código do Usuário
+  sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: {codigo: codigo}}
+
+  //Resgata Dados do Usuário
+  const user = await mPes.findOne(sql)
+
+  if (!user) {
+    return res.status(400).json({message:"Código ou Senha Inválidos"})
+    //return res.status(400).json({message:"Código Inválido"})
+  }
+
+  //Padroniza o Nível do Usuário
+  var userNivel = 00;
+  //Resgata Senha do Usuário
+  const usu = await mUsu.findOne( {where: {pessoaId: user.idPessoa} } )
+
+  //Resgata Senha no Banco de Dados
+  if (usu) { 
+    //Valida Senha
+    const validaPassword = await bcrypt.compare(senha, usu.senha)
+    //
+    userNivel = usu.nivel;
+    //Exibe Mensagem
+    if(!validaPassword){
+      return res.json({message:"Código ou Senha Inválidos"})
+      //return res.json({message:"Senha Inválida"})
+    }
+  }
+
+  //
+  const { id } = user;
+  const resultUser = {
+    id: user.idPessoa,
+    nome: user.nome,
+    codigo: user.codigo,
+    nivel: userNivel,
+    //senhaBco: senhaBco,
+    //senhaPsw: password,    
+    //senhaInf: senha, 
+    pessoa: user,
+    //usuario: usu,
+    Token: jwt.sign( { id },token.secret)
+  };
+
+  //
+  let response = {
+  }
+
+  //
+  if(userNivel==1){
+    response.message = "Administrador Localizado";
+    response.administrador = resultUser;
+  }
+  else
+  if(userNivel==2){
+    response.message = "Usuário Localizado";
+    response.usuario = resultUser;
+  }
+  else
+  {
+    response.message = "Usuário Localizado (Nivel NÃO Definido)";
+    response.usuario = resultUser;
+  }
+  
+  //
+  return res.send(response);
+   
 }
 
 /**** Lista de Usuários ****/  
@@ -52,7 +151,6 @@ exports.listUsu = (req, res) => {
     res.send(Ret)
     console.table(Ret)
   })
-
 }
 
 /**** Lista de Pessoas ****/  
@@ -63,7 +161,6 @@ exports.listPes = (req, res) => {
     res.send(Ret)
     console.table(Ret)
   })
-
 }
 
 /**** Lista de Pontos Comerciais ****/  
@@ -74,108 +171,79 @@ exports.listPnt = (req, res) => {
     res.send(Ret)
     console.table(Ret)
   })
-
 }
 
 /**** Inclui Novo Registro na Tabela ****/
 
-exports.criaUsu = (req, res) => {
+exports.criaUsu = async (req, res) => {
 
   //Cast JSON para Variaveis
   var {nome, codigo, tipoId, senha, sitUsuario} = req.body
+
+  //Padroniza "codigo"
+  codigo = codigo || "Não informado"
+  if (codigo == "Não informado") {
+    return res.status(400).json({message:"O Código do Usuário DEVE ser Informado"}) 
+  }    
+
+  //Comando Para Checar Código do Usuário
+  sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: {codigo: codigo}}
+
+  if (await mPes.findOne(sql)) {
+    return res.status(400).json({message:"Código JÁ Cadastrado!!"}) 
+  }
+
+  //Criptografa a Senha
+  const password = await bcrypt.hash(senha, 10);
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor
 
   sql = { raw: true, attributes: aTip, where: {id: tipoId}}
 
-  mTip.findOne(sql).then(Ret => {
+  if (! await mTip.findOne(sql)) {
+    return res.status(400).json({message:"tipoId NÃO Cadastrado!"}) 
+  }
 
-    if (Ret == null) {
-      msg = {
-        "Mensagem": 'O "tipoId" NÃO Cadastrado',
-        "Dados": req.body
-      }
-      res.send(msg)
-      console.table(msg)
-    } else
-    {
+  //Cast Variáveis para JSON
+  dad = {nome, codigo, tipoId}
 
-      //Padroniza "codigo"
-      codigo = codigo || "Não informado"
+  //Cria e Salva um Novo Registro na Tabela.
+  mPes.create(dad).then(Ret => {
 
-      if (codigo == "Não informado") {
-        msg = {
-          "Mensagem": 'O "Código do Usuário" DEVE ser Informado',
-          "Dados": req.body
-        }
-        res.send(msg)
-        console.table(msg)
-      } else 
-      {
+    //Sequencia da Pessoa
+    var pessoaId = Ret.id
 
-        sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: {codigo: codigo}}
-
-        mPes.findOne(sql).then(Ret => {
-
-          if (Ret != null) {
-            msg = {
-              "Mensagem": '"Código do Usuário" JÁ Cadastrado',
-              "Dados": Ret
-            }
-            res.send(msg)
-            console.table(msg)
-          } else 
-          { 
-
-            //Cast Variáveis para JSON
-            dad = {nome, codigo, tipoId}
-
-            //Cria e Salva um Novo Registro na Tabela.
-            mPes.create(dad).then(Ret => {
-
-              //Sequencia da Pessoa
-              var pessoaId = Ret.id
-
-              whr = {id: Ret.id}
+    whr = {id: Ret.id}
                 
-              wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr}
+    wUsu = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: whr}
 
-              //Checa e Grava Usuário
-              if (senha == '') {
-                mPes.findOne(wUsu).then(Ret => {
-                  res.send(Ret)
-                  console.table(Ret)
-                })
-              } else { 
+    //Checa e Grava Usuário
+    if (senha == '') {
+       mPes.findOne(wUsu).then(Ret => {
+          res.send(Ret)
+          console.table(Ret)
+       })
+    } else { 
+ 
+      //Padroniza "situacao"
+      situacao = sitUsuario || 0
 
-                //Padroniza "situacao"
-                situacao = sitUsuario || 0
+      //Cast Variáveis para JSON
+      dad = {senha: password, situacao, pessoaId}
 
-                //Cast Variáveis para JSON
-                dad = {senha, situacao, pessoaId}
+      //Cria e Salva um Novo Registro na Tabela.
+      mUsu.create(dad).then(Ret => {
+        mPes.findOne(wUsu).then(Ret => {
+          res.send(Ret)
+          console.table(Ret)
+        })
+      }) // mUsu.create(dad).then
 
-                //Cria e Salva um Novo Registro na Tabela.
-                mUsu.create(dad).then(Ret => {
-                  mPes.findOne(wUsu).then(Ret => {
-                    res.send(Ret)
-                    console.table(Ret)
-                  })
-                }) // mUsu.create(dad).then
+    } // // ifelse (senha == '')
 
-              } // // ifelse (senha == '')
+  }) // mPes.create(dad).then
 
-            }) // mPes.create(dad).then
-
-          } //ifelse (Ret != null)
-
-        }) // mPes.findOne(sql).then
-
-      } // ifelse (codigo == "Não informado")
-
-    } // if (Ret != null) - "tipoId"
-
-  }) // mTip.findOne(sql).then
 
 } // exports.criaUsu = (req, res)
 

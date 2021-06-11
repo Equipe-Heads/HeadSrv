@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   Usuarios.init({
     pessoaId: DataTypes.INTEGER,
     senha: DataTypes.STRING,
+    nivel: DataTypes.INTEGER,
     situacao: DataTypes.INTEGER
   }, {
     sequelize,
