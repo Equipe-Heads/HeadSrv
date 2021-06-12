@@ -101,6 +101,7 @@ exports.autenticacao = async (req, res) => {
     }
   }
 
+  userNivel = userNivel || 00
   //
   const { id } = user;
   const resultUser = {
@@ -111,7 +112,7 @@ exports.autenticacao = async (req, res) => {
     //senhaBco: senhaBco,
     //senhaPsw: password,    
     //senhaInf: senha, 
-    pessoa: user,
+    //pessoa: user,
     //usuario: usu,
     Token: jwt.sign( { id },token.secret)
   };
