@@ -70,7 +70,7 @@ exports.autenticacao = async (req, res) => {
   }    
 
   //Criptografa a Senha
-  const password = await bcrypt.hash(senha, 10);
+  const password = await bcrypt.hash(senha, 10)
 
   //Comando Para Checar Código do Usuário
   sql = { raw: true, attributes: aPes, include: [ iTip, iUsu ], where: {codigo: codigo}}
@@ -84,7 +84,7 @@ exports.autenticacao = async (req, res) => {
   }
 
   //Padroniza o Nível do Usuário
-  var userNivel = 00;
+  var userNivel = 00
   //Resgata Senha do Usuário
   const usu = await mUsu.findOne( {where: {pessoaId: user.idPessoa} } )
 
@@ -93,7 +93,7 @@ exports.autenticacao = async (req, res) => {
     //Valida Senha
     const validaPassword = await bcrypt.compare(senha, usu.senha)
     //
-    userNivel = usu.nivel;
+    userNivel = usu.nivel
     //Exibe Mensagem
     if(!validaPassword){
       return res.json({message:"Código ou Senha Inválidos"})
@@ -103,7 +103,7 @@ exports.autenticacao = async (req, res) => {
 
   userNivel = userNivel || 00
   //
-  const { id } = user;
+  const { id } = user
   const resultUser = {
     id: user.idPessoa,
     nome: user.nome,
@@ -115,7 +115,7 @@ exports.autenticacao = async (req, res) => {
     //pessoa: user,
     //usuario: usu,
     Token: jwt.sign( { id },token.secret)
-  };
+  }
 
   //
   let response = {
@@ -123,22 +123,22 @@ exports.autenticacao = async (req, res) => {
 
   //
   if(userNivel==1){
-    response.message = "Administrador Localizado";
-    response.administrador = resultUser;
+    response.message = "Administrador Localizado"
+    response.administrador = resultUser
   }
   else
   if(userNivel==2){
-    response.message = "Usuário Localizado";
-    response.usuario = resultUser;
+    response.message = "Usuário Localizado"
+    response.usuario = resultUser
   }
   else
   {
-    response.message = "Usuário Localizado (Nivel NÃO Definido)";
-    response.usuario = resultUser;
+    response.message = "Usuário Localizado (Nivel NÃO Definido)"
+    response.usuario = resultUser
   }
   
   //
-  return res.send(response);
+  return res.send(response)
    
 }
 
@@ -195,7 +195,7 @@ exports.criaUsu = async (req, res) => {
   }
 
   //Criptografa a Senha
-  const password = await bcrypt.hash(senha, 10);
+  const password = await bcrypt.hash(senha, 10)
 
   //Padroniza "tipoId"  
   tipoId = tipoId || 5 // 5 = Consumidor

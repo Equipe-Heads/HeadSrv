@@ -6,7 +6,7 @@ module.exports = {
       {
         logradoro: 'Rua Santa Lúcia',
         numero: '340',
-        bairro: 'Iputinga',
+        bairro: 'Iputinga Web',
         complemento: '1° Andar',
         cidade: 'Recife',
         uf: 'PE',

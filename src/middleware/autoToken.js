@@ -1,22 +1,21 @@
+//Importar uma Instância "Biblioteca que Gera Token"
 const jwt = require("jsonwebtoken");
+//Resgata Chave Secreta
 const { token } = require("../config/chaveSecreta");
 
-exports.authenticate = asunc (req, res, next ) => {
-
+exports.authenticate = async (req, res, next ) => {
 	// Pega o Cabeçalho "authorization" da requisição
-	const authHeader = req.headeres.authorization;
-	if (!authHeader) {
-		return res.json({message:"Token não definido"});
-	}
-
-	const [, resultToken] = authHeader.split(" ");
-
+	const authHeader = req.headers.authorization;
+	//
+	if (!authHeader) { return res.json({message:"Token não definido"}); }
+	//
+	const [bearer, resultToken] = authHeader.split(" ");
+	//
 	try {
 		// método "verify" da biblioteca jwt: Verifica o Token e
 		// retorna do payload do token decodificado
-		const payload = await jwt.verify(resultToken. token.secret);
+		const payload = await jwt.verify(resultToken, token.secret);
 		return next();
-	} catch (err){
-		return res.json({message:"Token Inválido!!"});
-	}
+	} 
+	catch (err){ return res.json({message:"Token Inválido!!"}); }
 }
